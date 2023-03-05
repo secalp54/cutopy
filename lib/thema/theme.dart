@@ -16,7 +16,7 @@ class AppTheme {
           ElevatedButtonThemeData(style: ButtonStyle(backgroundColor: MaterialStateProperty.all(AppColor.buttonColor))),
       textTheme: TextTheme(
         bodyText1: AppTextStyle.bodyText1,
-      ).copyWith(titleMedium: AppTextStyle.titleText, titleLarge: AppTextStyle.appBarTitle),
+      ).copyWith(titleMedium: AppTextStyle.titleText, titleLarge: AppTextStyle.appBarTitle,headlineMedium: AppTextStyle.appBarTitle),
     );
   }
 }
@@ -30,8 +30,9 @@ class AppColor {
 }
 
 class AppTextStyle {
-  static TextStyle bodyText1 = GoogleFonts.nunito(color: AppColor.textColor, fontSize: 16);
-  static TextStyle titleText = GoogleFonts.nunito(color: AppColor.textColor, fontSize: 20);
+  static TextStyle bodyText1 = GoogleFonts.montserrat(color: AppColor.textColor, fontSize: 16);
+  static TextStyle titleText = GoogleFonts.montserrat(color: AppColor.textColor, fontSize: 20);
   static TextStyle appBarTitle =
-      GoogleFonts.nunito(color: AppColor.textColor, fontSize: 26, fontWeight: FontWeight.bold);
+      GoogleFonts.montserrat(color: AppColor.textColor, fontSize: 26, fontWeight: FontWeight.bold);
+ static TextStyle mediumTitle = GoogleFonts.montserrat(color: AppColor.textColor, fontSize: 23,fontWeight: FontWeight.bold);
 }

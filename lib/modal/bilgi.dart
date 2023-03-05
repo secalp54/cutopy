@@ -9,7 +9,10 @@ class Note {
   final String text;
 
   @HiveField(2)
-  final int selectIndex=0;
+  final int selectIndex = 0;
+
+  @HiveField(3)
+  DateTime alarm = DateTime.now();
 
   Note(this.baslik, this.text);
   @override

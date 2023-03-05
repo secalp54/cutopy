@@ -1,17 +1,36 @@
+// ignore_for_file: prefer_interpolation_to_compose_strings
+
 import 'package:clipboard/clipboard.dart';
 import 'package:cutopy/bloc/note_cubit.dart';
 import 'package:cutopy/bloc/note_repository.dart';
 import 'package:cutopy/bloc/note_satete.dart';
 import 'package:cutopy/const/string_const.dart';
+import 'package:cutopy/const/time_calculate.dart';
 import 'package:cutopy/pages/add_notes.dart';
+import 'package:cutopy/services/notification.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_styled_toast/flutter_styled_toast.dart';
 
 import '../modal/bilgi.dart';
 
-class MainPage extends StatelessWidget {
+final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+
+class MainPage extends StatefulWidget {
   const MainPage({Key? key}) : super(key: key);
+
+  @override
+  State<MainPage> createState() => _MainPageState();
+}
+
+class _MainPageState extends State<MainPage> {
+  @override
+  void initState() {
+    // TODO: implement initState
+    Noti(context).Initialize(flutterLocalNotificationsPlugin);
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -36,11 +55,10 @@ class MainPageView extends StatelessWidget {
         //print(selectedCard);
         return Scaffold(
           appBar: AppBar(
-              title: Text(
+            title: Text(
               AppString.appName,
               style: Theme.of(context).textTheme.titleLarge,
             ),
-          
             actions: [
               Visibility(
                 visible: selectedCard > -1 ? true : false,
@@ -73,6 +91,8 @@ class MainPageView extends StatelessWidget {
       if (note!.baslik != "" || note.text != "") {
         // ignore: use_build_context_synchronously
         context.read<NotesCubit>().addNote(note);
+        var fark = TimeCalculate.TimeDif(note.alarm);
+        if (fark.isNegative) await Noti(context).zonedScheduleNotification(note.alarm, note.baslik, note.text);
       }
     }
   }
@@ -97,14 +117,21 @@ class MainPageView extends StatelessWidget {
               return GestureDetector(
                 child: cardBuilder(context, noteList[index], index),
                 onDoubleTap: (() async {
-                var value=  await Navigator.of(context)
+                  var value = await Navigator.of(context)
                       .push<Note>(MaterialPageRoute(builder: ((context) => NoteForm(note: noteList[index]))));
-                    if (value!=null) context.read<NotesCubit>().updateCard(index, value);
+                  if (value != null) {
+                    context.read<NotesCubit>().updateCard(index, value);
+                    var fark = TimeCalculate.TimeDif(value.alarm);
+                    if (fark.isNegative) {
+                      await Noti(context).zonedScheduleNotification(value.alarm, value.baslik, value.text);
+                    }
+                  }
                 }),
-                onLongPress: () {
+                onLongPress: () async {
                   var message = noteList[index].text;
                   FlutterClipboard.copy(message);
                   showMessage(message, context);
+                  //  Noti.showBigTextNoti(title: "uy", body: "body", fln: flutterLocalNotificationsPlugin);
                 },
                 onTap: () {
                   context.read<NotesCubit>().selectCard(index);
